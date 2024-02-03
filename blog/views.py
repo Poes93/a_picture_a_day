@@ -1,13 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from .forms import SignUpForm, PostForm
 from django.utils import timezone
-from .models import Post
+from .models import Post, Follow, User, Like
 from django.urls import reverse
+from django.db import models
 
-from .models import Follow, User
 
 def signup(request):
     if request.method == 'POST':
@@ -100,3 +101,17 @@ def unfollow_user(request, user_id):
     user_to_unfollow = User.objects.get(pk=user_id)
     Follow.objects.filter(follower=request.user, followed=user_to_unfollow).delete()
     return HttpResponseRedirect(reverse('user_profile', args=[user_id]))
+
+
+def home(request):
+    # Get the list of ids for users that the current user follows
+    user_ids = request.user.following.values_list('followed__id', flat=True)
+    # Filter posts to only include those from followed users
+    posts = Post.objects.filter(user__id__in=user_ids).order_by('-created_at')
+    return render(request, 'your_app/home.html', {'posts': posts})
+
+
+def notifications(request):
+    notifications = request.user.notifications.filter(is_read=False)
+    return render(request, 'your_app/notifications.html', {'notifications': notifications})
+

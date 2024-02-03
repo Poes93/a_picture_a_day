@@ -8,6 +8,9 @@ class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ['photo', 'caption', 'text', 'mood']
+        widgets = {
+            'mood': forms.Select(attrs={'class': 'form-control'}),
+        }
 
     def __init__(self, *args, **kwargs):
         super(PostForm, self).__init__(*args, **kwargs)
