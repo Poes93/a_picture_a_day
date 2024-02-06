@@ -1,0 +1,107 @@
+<h2>{{ post.caption }}</h2>
+<!-- Display post details -->
+
+<!-- Display comments -->
+<h3>Comments</h3>
+{% for comment in comments %}
+    <p>{{ comment.text }} - <small>{{ comment.user.username }}</small></p>
+{% endfor %}
+
+<!-- Comment form -->
+<form method="post">
+    {% csrf_token %}
+    {{ comment_form.as_p }}
+    <button type="submit" name="comment_submit">Add Comment</button>
+</form>
+
+<!-- Like button -->
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" name="like_submit">{% if user in post.likes.all %}Unlike{% else %}Like{% endif %}</button>
+</form>
+<h2>{{ post.caption }}</h2>
+<!-- Display post details -->
+
+<!-- Display comments -->
+<h3>Comments</h3>
+{% for comment in comments %}
+    <p>{{ comment.text }} - <small>{{ comment.user.username }}</small></p>
+{% endfor %}
+
+<!-- Comment form -->
+<form method="post">
+    {% csrf_token %}
+    {{ comment_form.as_p }}
+    <button type="submit" name="comment_submit">Add Comment</button>
+</form>
+
+<!-- Like button -->
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" name="like_submit">{% if user in post.likes.all %}Unlike{% else %}Like{% endif %}</button>
+</form>
+
+
+
+
+4. Updating Templates for Follow/Unfollow Actions:
+
+In your user profile template or wherever you list users (e.g., user_profile.html), add buttons or links to follow and unfollow users.
+
+html
+Copy code
+{% if user != request.user %}
+    {% if request.user in user.followers.all %}
+        <form action="{% url 'unfollow_user' user.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Unfollow</button>
+        </form>
+    {% else %}
+        <form action="{% url 'follow_user' user.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Follow</button>
+        </form>
+    {% endif %}
+{% endif %}
+
+
+
+And in your_app/templates/your_app/notifications.html, you can display them like this:
+
+html
+Copy code
+<ul>
+    {% for notification in notifications %}
+    <li>
+        {% if notification.notification_type == Notification.FOLLOW %}
+            {{ notification.from_user.username }} followed you.
+        {% elif notification.notification_type == Notification.LIKE %}
+            {{ notification.from_user.username }} liked your post.
+        {% elif notification.notification_type == Notification.COMMENT %}
+            {{ notification.from_user.username }} commented on your post.
+        {% endif %}
+        <!-- Add other notification types as needed -->
+    </li>
+    {% endfor %}
+</ul>
+
+
+
+
+
+
+And in your template, add a search form:
+
+html
+Copy code
+<form method="get">
+    <input type="text" name="q" placeholder="Search posts...">
+    <button type="submit">Search</button>
+</form>
+
+
+
+
+
+
+
