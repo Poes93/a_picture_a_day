@@ -2,8 +2,7 @@ from django.shortcuts import render, get_object_or_404, reverse
 from django.views import generic, View
 from django.http import HttpResponseRedirect
 from django.core.exceptions import ValidationError
-from django.shortcuts import render
-from .models import Post, UserProfile, Comment
+from .models import Post, Comment
 from .forms import CommentForm, PostForm
 
 
@@ -35,7 +34,7 @@ class PostDetail(View):
                 "comment_form": CommentForm()
             },
         )
-    
+
     def post(self, request, slug, *args, **kwargs):
 
         queryset = Post.objects.filter(status=1)
@@ -69,7 +68,7 @@ class PostDetail(View):
 
 
 class PostLike(View):
-    
+
     def post(self, request, slug, *args, **kwargs):
         post = get_object_or_404(Post, slug=slug)
         if post.likes.filter(id=request.user.id).exists():
@@ -80,23 +79,14 @@ class PostLike(View):
         return HttpResponseRedirect(reverse('post_detail', args=[slug]))
 
 
-class UserProfileView(generic.DetailView):
-    model = UserProfile
-    template_name = "user_profile.html"
-    context_object_name = "profile"
-
-    def get_object(self, queryset=None):
-        return self.request.user.profile
-
-
 class UserPostsView(generic.ListView):
     model = Post
     template_name = "user_posts.html"
-    context_object_name = "posts"
     paginate_by = 8
 
     def get_queryset(self):
-        return Post.objects.filter(author=self.request.user).order_by("-created_on")
+        queryset = Post.objects.filter(author=self.request.user, status=1).order_by("-created_on")
+        return queryset
 
 
 # User can only post once every 24 hours
