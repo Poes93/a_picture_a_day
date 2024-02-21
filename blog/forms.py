@@ -12,7 +12,7 @@ class CommentForm(forms.ModelForm):
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ('title', 'content', 'mood', 'featured_image')
+        fields = ('title', 'content', 'mood', 'featured_image', 'status')
 
     def __init__(self, *args, **kwargs):
         super(PostForm, self).__init__(*args, **kwargs)

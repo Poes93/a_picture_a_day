@@ -120,22 +120,16 @@ class PostUpdate(generic.UpdateView):
     template_name = "post_edit.html"
 
     def form_valid(self, form):
-        try:
-            post = form.save(commit=False)
-            post.author = self.request.user
-            action = self.request.POST.get('action', 'Draft')
-
-            if action == 'Publish':
-                post.status = 1
-            else:
-                post.status = 0
-
-            post.save()  # This might raise ValidationError
-            return HttpResponseRedirect(post.get_absolute_url())
-        except ValidationError as e:
-            # Add the error from the ValidationError to the form
-            form.add_error(None, e)
-            return self.form_invalid(form)  # Re-render the form with errors
+        # Get the post object
+        post = form.save(commit=False)
+        # Save any modifications to the post
+        post.save()
+        
+        # Construct the URL for the post detail page
+        post_detail_url = reverse('post_detail', kwargs={'slug': post.slug})
+        
+        # Redirect the user to the post detail page
+        return redirect(post_detail_url)
 
 
 class PostDelete(generic.DeleteView):
