@@ -14,7 +14,8 @@
             <div class="d-none d-md-block col-md-6 masthead-image">
                 <!-- The featured image URL goes in the src attribute -->
                 {% if "placeholder" in post.featured_image.url %}
-                <img src="https://res.cloudinary.com/ispeakfishlang/image/upload/v1/media/django-summernote/2024-02-02/564685f6-f167-42d7-9312-7fbc0c91f6cb_hvxlau" width="100%">
+                <img src="https://res.cloudinary.com/ispeakfishlang/image/upload/v1/media/django-summernote/2024-02-02/564685f6-f167-42d7-9312-7fbc0c91f6cb_hvxlau"
+                    width="100%">
                 {% else %}
                 <img src=" {{ post.featured_image.url }}" width="100%">
                 {% endif %}
@@ -62,14 +63,14 @@
                             <span class="text-secondary"><i class="far fa-heart"></i></span>
                             {% endif %}
                             <!-- The number of likes goes before the closing strong tag -->
-                            <span class="text-secondary">{{ post.total_likes }} </span>
+                            <span class="text-secondary">{{ post.number_of_likes }} </span>
                         </strong>
                     </div>
                     <div class="col-1">
-                        {% with comments.count as total_comments %}
+                        {% with comments.count as number_of_comments %}
                         <strong class="text-secondary"><i class="far fa-comments"></i>
                             <!-- Our total_comments variable goes before the closing strong tag -->
-                            {{ total_comments }}</strong>
+                            {{ number_of_comments }}</strong>
                         {% endwith %}
                     </div>
                 </div>
@@ -97,25 +98,21 @@
                         </span> wrote:
                     </p>
                     <!-- The body of the comment goes before the | -->
-                    {{ comment.content | linebreaks }}
-                    {% if comment.author == request.user %}
-                    <a class="btn btn-signup" href="{% url 'edit_comment' comment.id %}" role="button">Edit</a>
-                    <a class="btn btn-danger" href="{% url 'delete_comment' comment.id %}" role="button">Delete</a>
+                    {{ comment.body | linebreaks }}
+                    {% if user == comment.author %}
+                    <a class="btn btn-signup" href="{% url 'comment_edit' comment.id %}" role="button">Edit</a>
+                    <a class="btn btn-danger" href="{% url 'comment_delete' comment.id %}" role="button">Delete</a>
                     {% endif %}
                 </div>
                 <!-- Our for loop ends here -->
                 {% endfor %}
+
+
+            
             </div>
         </div>
         <div class="col-md-4 card mb-4  mt-3 ">
             <div class="card-body">
-                <!-- Commenting -->
-                {% if commented %}
-                <div class="alert alert-success" role="alert">
-                    Your comment is awaiting approval
-                </div>
-                {% else %}
-
                 {% if user.is_authenticated %}
 
                 <h3>Leave a Comment:</h3>
@@ -125,7 +122,6 @@
                     <button type="submit" class="btn btn-signup btn-lg">Submit</button>
                 </form>
 
-                {% endif %}
                 {% endif %}
 
             </div>

@@ -80,11 +80,8 @@ class Post(models.Model):
 
 # Comment model
 class Comment(models.Model):
-    post = models.ForeignKey(
-        Post,
-        on_delete=models.CASCADE,
-        related_name="comments"
-    )
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField(max_length=80)
     email = models.EmailField()
     body = models.TextField()
@@ -98,13 +95,3 @@ class Comment(models.Model):
 
     def get_absolute_url(self):
         return reverse("post_detail", kwargs={"slug": self.post.slug})
-
-
-# user profile model
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    bio = models.TextField(blank=True)
-    # Add any other fields you need for the user profile
-
-    def __str__(self):
-        return self.user.username + "'s Profile"
