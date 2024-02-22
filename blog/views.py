@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, reverse, redirect
 from django.views import generic, View
+from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.core.exceptions import ValidationError
 from .models import Post, Comment
@@ -136,10 +137,21 @@ class PostDelete(generic.DeleteView):
     model = Post
     template_name = "post_delete.html"
     pk_url_kwarg = 'pk'
+    success_url = reverse_lazy('user_posts')  # Default success URL
 
-    def get_success_url(self):
-        # Redirect to the user's posts
-        return reverse('user_posts')
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+
+        # Delete the object
+        self.object.delete()
+
+        # Redirect the user to the previous page
+        referer = request.META.get('HTTP_REFERER')
+        if referer:
+            return HttpResponseRedirect(referer)
+
+        return HttpResponseRedirect(success_url)
 
 
 class CommentEdit(generic.UpdateView):

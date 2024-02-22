@@ -66,7 +66,7 @@ body {
 .masthead-text {
     background-color: #445261;
     color: white;
-    padding: 10px;
+    padding: 0px;
 }
 
 .masthead-image {
@@ -164,10 +164,16 @@ label[for="id_content"] {
     display: none;
 }
 
+a[href="/accounts/password/reset/"] {
+    display: none;
+}
+
 .post-title, .post-subtitle, .card-text, .post-mood, .post-interactions {
     margin-left: 0;
     padding-left: 10px; /* Adjust these values as needed */
 }
+
+
 
 
 
