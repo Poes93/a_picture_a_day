@@ -48,15 +48,23 @@ class Post(models.Model):
         ordering = ["-created_on"]
 
     def save(self, *args, **kwargs):
-        # Only update the slug when the object is being created
-        # or if you want to update the slug as the title changes,
-        # remove the `not self.pk` condition.
-        if not self.slug or self.pk and self.title_changed:
+        if not self.slug or (self.pk and self.title_changed):
             self.slug = slugify(self.title)
 
         # Prevent a user from posting more than once every 24 hours
         if not self.pk:  # Checking if the post is new
             last_post = Post.objects.filter(author=self.author).order_by('-created_on').first()
+            if last_post:
+                # Get the date of the last post and the current date
+                last_post_date = last_post.created_on.date()
+                current_date = timezone.now().date()
+                # Allow posting if the last post was not made on the same day as today
+                if last_post_date != current_date:
+                    super(Post, self).save(*args, **kwargs)
+                    return
+
+            # If there's no last post or the last post was made on the same day,
+            # then check the time difference
             if last_post and timezone.now() - last_post.created_on < timedelta(days=1):
                 raise ValidationError('You can only post "A Photo a day".')
 

@@ -9,10 +9,39 @@
             <div class="col-md-6 masthead-text">
                 <!-- Post title goes in these h1 tags -->
                 <h1 class="post-title">{{ post.title }}</h1>
-                <!-- Mood of the day -->
-                <p class="post-mood">Mood of the Day: {{ post.mood }}</p>
-                <!-- Post author and created date -->
-                <p class="post-subtitle">{{ post.author }} | {{ post.created_on|date:"N j, Y" }}</p>
+                <p class="card-text">{{ post.content | safe }}</p>
+                <p class="post-mood">Mood of the post: {{ post.mood }}</p>
+                <p class="post-subtitle"> {{ post.created_on|date:"N j, Y" }}</p>
+                <div class="post-interactions">
+                    {% if user.is_authenticated %}
+                    <div class="like-section mb-2">
+                        <form class="d-inline" action="{% url 'post_like' post.slug %}" method="POST">
+                            {% csrf_token %}
+                            {% if liked %}
+                            <!-- Updated button to include "Like" text next to the heart icon -->
+                            <button type="submit" name="blogpost_id" value="{{ post.slug }}" class="btn-like">
+                                <i class="fas fa-heart"></i> Like
+                            </button>
+                            {% else %}
+                            <button type="submit" name="blogpost_id" value="{{ post.slug }}" class="btn-like">
+                                <i class="far fa-heart"></i> Like
+                            </button>
+                            {% endif %}
+                        </form>
+                    </div>
+                    {% else %}
+                    <div class="like-section mb-2">
+                        <span class="text-secondary"><i class="far fa-heart"></i> Like</span>
+                    </div>
+                    {% endif %}
+                    <!-- New row for Edit and Delete buttons if the user is the author -->
+                    {% if user.is_authenticated and post.author == user %}
+                    <div class="author-interactions">
+                        <a class="btn btn-signup" href="{% url 'post_edit' post.id %}" role="button">Edit</a>
+                        <a class="btn btn-danger" href="{% url 'post_delete' post.id %}" role="button">Delete</a>
+                    </div>
+                    {% endif %}
+                </div>                
             </div>
             <div class="d-none d-md-block col-md-6 masthead-image">
                 <!-- The featured image URL goes in the src attribute -->
@@ -29,42 +58,6 @@
 <div class="container">
     <div class="row">
         <div class="col card mb-4 mt-3 left top">
-            <div class="card-body">
-                <!-- The post content goes inside the card-text. Use the | safe filter inside the template tags -->
-                <p class="card-text">{{ post.content | safe }}</p>
-                <div class="row">
-                    <div class="col-1">
-                        <strong>
-                            {% if user.is_authenticated and post.author == user %}
-                            <div class="btn-toolbar d-inline" role="toolbar" aria-label="Toolbar with button groups">
-                                <div class="btn-group" role="group">
-                                    <a class="btn btn-signup" href="{% url 'post_edit' post.id %}" role="button">Edit</a>
-                                    <a class="btn btn-danger" href="{% url 'post_delete' post.id %}" role="button">Delete</a>
-                                </div>
-                            </div>
-                            {% endif %}
-                            {% if user.is_authenticated %}
-                            <form class="d-inline" action="{% url 'post_like' post.slug %}" method="POST">
-                                {% csrf_token %}
-                                {% if liked %}
-                                <button type="submit" name="blogpost_id" value="{{ post.slug }}" class="btn-like"><i class="fas fa-heart"></i></button>
-                                {% else %}
-                                <button type="submit" name="blogpost_id" value="{{ post.slug }}" class="btn-like"><i class="far fa-heart"></i></button>
-                                {% endif %}
-                            </form>
-                            {% else %}
-                            <span class="text-secondary"><i class="far fa-heart"></i></span>
-                            {% endif %}
-                            <!-- The number of likes -->
-                            <span class="text-secondary">{{ post.number_of_likes }}</span>
-                        </strong>
-                    </div>
-                    <div class="col-1">
-                        {% with comments.count as number_of_comments %}
-                        <strong class="text-secondary"><i class="far fa-comments"></i> {{ number_of_comments }}</strong>
-                        {% endwith %}
-                    </div>
-                </div>
             </div>
         </div>
     </div>

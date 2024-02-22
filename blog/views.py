@@ -124,10 +124,10 @@ class PostUpdate(generic.UpdateView):
         post = form.save(commit=False)
         # Save any modifications to the post
         post.save()
-        
+
         # Construct the URL for the post detail page
         post_detail_url = reverse('post_detail', kwargs={'slug': post.slug})
-        
+
         # Redirect the user to the post detail page
         return redirect(post_detail_url)
 
@@ -151,6 +151,7 @@ class CommentEdit(generic.UpdateView):
     def get_success_url(self):
         # Redirect to the post detail
         return reverse('post_detail', args=[self.object.post.slug])
+
 
 def edit_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
