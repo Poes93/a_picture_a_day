@@ -164,6 +164,10 @@ label[for="id_content"] {
     display: none;
 }
 
+label[for="id_body"] {
+    display: none;
+}
+
 a[href="/accounts/password/reset/"] {
     display: none;
 }

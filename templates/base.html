@@ -83,11 +83,33 @@
 
     <!-- Footer -->
     <footer class="footer mt-auto py-3 dark-bg">
-        <p class="m-0 text-center text-white">Made by Daniel Ahlberg</p>
-        <p class="m-0 text-center text-white">Follow us: <i class="fab fa-facebook-square ms-3"></i>
-            <i class="fab fa-instagram-square ms-3"></i>
+        <footer class="py-4 bg-dark">
+            <div class="container text-center">
+                <p class="m-0 text-white">Copyright <span id="year"></span> - a photo a day</p>
+            </div>
+        </footer>
+        <p class="m-0 text-center text-white">Follow us:
+            <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-facebook-square ms-3"></i>
+            </a>
+            <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-instagram-square ms-3"></i>
+            </a>
+        </p>
     </footer>
     <script>
+        // Function to update the year in the footer
+        function updateYear() {
+            // Get the current year
+            var currentYear = new Date().getFullYear();
+            // Update the content of the span element with the current year
+            document.getElementById("year").innerHTML = currentYear;
+        }
+    
+        // Call the updateYear function to initially set the year
+        updateYear();
+    
+        // Existing code to close the alert message after 2 seconds
         setTimeout(function () {
             let messages = document.getElementById('msg');
             let alert = new bootstrap.Alert(messages);

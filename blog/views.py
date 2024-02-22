@@ -97,22 +97,10 @@ class PostCreate(generic.CreateView):
     template_name = "post_create.html"
 
     def form_valid(self, form):
-        try:
-            post = form.save(commit=False)
-            post.author = self.request.user
-            action = self.request.POST.get('action', 'Draft')
-
-            if action == 'Publish':
-                post.status = 1
-            else:
-                post.status = 0
-
-            post.save()  # This might raise ValidationError
-            return HttpResponseRedirect(post.get_absolute_url())
-        except ValidationError as e:
-            # Add the error from the ValidationError to the form
-            form.add_error(None, e)
-            return self.form_invalid(form)  # Re-render the form with errors
+        post = form.save(commit=False)
+        post.author = self.request.user
+        post.save()
+        return HttpResponseRedirect(post.get_absolute_url())
 
 
 class PostUpdate(generic.UpdateView):
