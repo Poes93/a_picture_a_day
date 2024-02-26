@@ -1,8 +1,8 @@
 from django.shortcuts import render, get_object_or_404, reverse, redirect
 from django.views import generic, View
+from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
-from django.core.exceptions import ValidationError
 from .models import Post, Comment
 from .forms import CommentForm, PostForm
 
@@ -91,7 +91,7 @@ class UserPostsView(generic.ListView):
 
 
 # User can only post once every 24 hours
-class PostCreate(generic.CreateView):
+class PostCreate(CreateView):
     model = Post
     form_class = PostForm
     template_name = "post_create.html"
@@ -99,6 +99,13 @@ class PostCreate(generic.CreateView):
     def form_valid(self, form):
         post = form.save(commit=False)
         post.author = self.request.user
+
+        # Check if the 'Save as Draft' checkbox is selected
+        if 'save_draft' in self.request.POST:
+            post.status = 'draft'  # Set the status of the post to 'draft'
+        else:
+            post.status = 'published'  # Set the status of the post to 'published'
+
         post.save()
         return HttpResponseRedirect(post.get_absolute_url())
 

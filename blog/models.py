@@ -15,6 +15,11 @@ class Post(models.Model):
     EXCITED = '🤩'
     ANGRY = '😠'
     LOVE = '❤️'
+    SLEEPY = '😴'
+    SURPRISED = '😮'
+    CONFUSED = '😕'
+    LAUGHING = '😂'
+    NERVOUS = '😬'
 
     MOOD_CHOICES = [
         (HAPPY, 'Happy 😊'),
@@ -22,6 +27,11 @@ class Post(models.Model):
         (EXCITED, 'Excited 🤩'),
         (ANGRY, 'Angry 😠'),
         (LOVE, 'Love ❤️'),
+        (SLEEPY, 'Sleepy 😴'),
+        (SURPRISED, 'Surprised 😮'),
+        (CONFUSED, 'Confused 😕'),
+        (LAUGHING, 'Laughing 😂'),
+        (NERVOUS, 'Nervous 😬'),
     ]
 
     title = models.CharField(max_length=200, unique=True)
