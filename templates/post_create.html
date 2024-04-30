@@ -9,15 +9,22 @@
 
 <div class="container">
     <div class="row">
-        <div class="col card mb-4  mt-3 left  top">
+        <div class="col card mb-4 mt-3 left top">
             <div class="card-body">
                 <h2>Create New Post</h2>
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ form.as_p }}
-                    <button type="submit" name="action" value="Publish">Publish</button>
-                </form>                
+                    <button type="submit" name="action" value="save_draft">Save Draft</button>
+                    <button type="submit" name="action" value="publish">Publish</button>
+                </form>
+                <!-- Conditional links for editing or viewing drafts and published posts -->
+                {% if post.status == 0 and post.author == user %}
+                    <a href="{% url 'post_detail' slug=post.slug %}" class="btn btn-primary mt-3">Edit/View Draft</a>
+                {% elif post.status == 1 %}
+                    <a href="{% url 'post_detail' slug=post.slug %}" class="btn btn-primary mt-3">{{ post.title }}</a>
+                {% endif %}
             </div>
         </div>
     </div>
-    {% endblock %}
+{% endblock %}

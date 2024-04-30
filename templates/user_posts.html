@@ -4,7 +4,6 @@
 
 <div class="container-fluid">
     <div class="row">
-
         <!-- Blog Entries Column -->
         <div class="col-12 mt-3 left">
             <div class="row">
@@ -13,6 +12,7 @@
                     <div class="card mb-4">
                         <div class="card-body">
                             <div class="image-container">
+                                {% if post.slug %}
                                 <a href="{% url 'post_detail' post.slug  %}">
                                     {% if "placeholder" in post.featured_image.url %}
                                     <img class="card-img-top"
@@ -21,10 +21,19 @@
                                     <img class="card-img-top" src="{{ post.featured_image.url }}">
                                     {% endif %}
                                 </a>
+                                {% else %}
+                                <img class="card-img-top"
+                                     src="https://res.cloudinary.com/ispeakfishlang/image/upload/v1/media/django-summernote/2024-02-02/564685f6-f167-42d7-9312-7fbc0c91f6cb_hvxlau"
+                                     alt="No link available">
+                                {% endif %}
                             </div>
+                            {% if post.slug %}
                             <a href="{% url 'post_detail' post.slug  %}" class="post-link">
+                            {% endif %}
                                 <h2 class="card-title">{{ post.title }}</h2>
+                            {% if post.slug %}
                             </a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -33,7 +42,6 @@
             <div class="row">
                 {% endif %}
                 {% endfor %}
-
             </div>
         </div>
     </div>

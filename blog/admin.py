@@ -2,10 +2,8 @@ from django.contrib import admin
 from .models import Post, Comment
 from django_summernote.admin import SummernoteModelAdmin
 
-
 @admin.register(Post)
 class PostAdmin(SummernoteModelAdmin):
-
     list_display = ('title', 'slug', 'status', 'created_on', 'updated_on', 'mood')
     search_fields = ['title', 'content']
     list_filter = ('status', 'created_on', 'updated_on', 'mood')
@@ -15,7 +13,6 @@ class PostAdmin(SummernoteModelAdmin):
 
     def make_published(self, request, queryset):
         queryset.update(status=1)
-
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):

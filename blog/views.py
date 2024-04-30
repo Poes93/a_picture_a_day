@@ -1,13 +1,16 @@
 from django.shortcuts import render, get_object_or_404, reverse, redirect
 from django.views import generic, View
+from django.db.models import Q
 from django.views.generic import CreateView
 from django.urls import reverse_lazy
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from .models import Post, Comment
 from .forms import CommentForm, PostForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
+from django.db import IntegrityError, transaction
+from django.contrib import messages
 
 class PostList(generic.ListView):
     model = Post
@@ -16,14 +19,20 @@ class PostList(generic.ListView):
     paginate_by = 8
 
 class PostDetail(View):
-
     def get(self, request, slug):
+        # Begin with a base query that includes only published posts
         queryset = Post.objects.filter(status=1)
+        
+        # If the user is authenticated, adjust the queryset to also include their own drafts
+        if request.user.is_authenticated:
+            queryset = Post.objects.filter(Q(status=1) | Q(author=request.user, status=0))
+        
+        # Attempt to get the post with the slug, within the refined queryset
         post = get_object_or_404(queryset, slug=slug)
-        comments = post.comments.filter().order_by('-created_on')
-        liked = False
-        if post.likes.filter(id=self.request.user.id).exists():
-            liked = True
+
+        # Gather comments and like status for the post
+        comments = post.comments.order_by('-created_on')
+        liked = post.likes.filter(id=request.user.id).exists() if request.user.is_authenticated else False
 
         return render(
             request,
@@ -36,6 +45,7 @@ class PostDetail(View):
                 'comment_form': CommentForm(),
             }
         )
+
 
     @method_decorator(login_required)
     def post(self, request, slug, *args, **kwargs):
@@ -70,7 +80,6 @@ class PostDetail(View):
         )
 
 class PostLike(View):
-
     @method_decorator(login_required)
     def post(self, request, slug, *args, **kwargs):
         post = get_object_or_404(Post, slug=slug)
@@ -87,8 +96,16 @@ class UserPostsView(LoginRequiredMixin, generic.ListView):
     paginate_by = 8
 
     def get_queryset(self):
-        queryset = Post.objects.filter(author=self.request.user, status=1).order_by("-created_on")
-        return queryset
+        # Retrieve the filter from the URL parameter, default to showing all posts
+        post_status = self.request.GET.get('status', 'all')
+
+        if post_status == 'published':
+            return Post.objects.filter(author=self.request.user, status=1).order_by("-created_on")
+        elif post_status == 'drafts':
+            return Post.objects.filter(author=self.request.user, status=0).order_by("-created_on")
+        else:
+            return Post.objects.filter(author=self.request.user).order_by("-created_on")
+
 
 class PostCreate(LoginRequiredMixin, CreateView):
     model = Post
@@ -98,12 +115,23 @@ class PostCreate(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         post = form.save(commit=False)
         post.author = self.request.user
-        if 'save_draft' in self.request.POST:
-            post.status = 'draft'
+        action = self.request.POST.get('action')
+
+        if action == 'save_draft':
+            post.status = 0
         else:
-            post.status = 'published'
-        post.save()
+            post.status = 1
+
+        try:
+            with transaction.atomic():
+                post.save()  # This will now handle transaction rollback on error
+                return HttpResponseRedirect(post.get_absolute_url())
+        except IntegrityError as e:
+            messages.error(self.request, "There was an error saving your post. Please try again.")
+            return self.form_invalid(form)
+
         return HttpResponseRedirect(post.get_absolute_url())
+
 
 class PostUpdate(LoginRequiredMixin, generic.UpdateView):
     model = Post
