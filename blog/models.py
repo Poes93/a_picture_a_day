@@ -34,7 +34,7 @@ class Post(models.Model):
     ]
 
     title = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True, blank=True)
+    slug = models.SlugField(unique=True, blank=True, null=False, default=uuid.uuid4)
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="blog_posts"
     )
@@ -45,7 +45,7 @@ class Post(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     status = models.IntegerField(
         choices=[(0, "Draft"), (1, "Publish")],
-        default=1
+        default=0
     )
     likes = models.ManyToManyField(
         User,
