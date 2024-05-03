@@ -15,8 +15,7 @@
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ form.as_p }}
-                    <button type="submit" name="action" value="save_draft">Save Draft</button>
-                    <button type="submit" name="action" value="publish">Publish</button>
+                    <button type="submit">Submit</button>
                 </form>
                 <!-- Conditional links for editing or viewing drafts and published posts -->
                 {% if post.status == 0 and post.author == user %}

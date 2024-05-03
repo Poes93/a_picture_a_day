@@ -16,9 +16,13 @@ class PostForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(PostForm, self).__init__(*args, **kwargs)
+        # Set the choices to match the integer values expected by the model
+        self.fields['status'].choices = [
+            (0, 'Draft'),  # 0 for Draft
+            (1, 'Publish')  # 1 for Publish
+        ]
         self.helper = FormHelper()
         self.helper.form_method = 'post'
-        self.helper.add_input(Submit('submit', 'Save Post'))
         self.helper.layout = Layout(
             'title',
             'content',
@@ -26,7 +30,6 @@ class PostForm(forms.ModelForm):
             'status',
             'featured_image',
             FormActions(
-                Submit('save', 'Save Changes'),
-                Submit('cancel', 'Cancel', css_class='btn-secondary')
+                Submit('submit', 'Save Post', css_class='btn-primary')
             )
         )

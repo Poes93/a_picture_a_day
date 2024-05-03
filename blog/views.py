@@ -115,12 +115,13 @@ class PostCreate(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         post = form.save(commit=False)
         post.author = self.request.user
-        action = self.request.POST.get('action')
-
-        if action == 'save_draft':
-            post.status = 0
+        # Use the 'status' field directly from the form
+        # Assuming 'status' is a choice field in your form where 'draft' and 'publish' are possible values
+        status = form.cleaned_data['status']
+        if status == 'publish':
+            post.status = 1  # Assuming 1 is for published
         else:
-            post.status = 1
+            post.status = 0  # Assuming 0 is for drafts
 
         try:
             with transaction.atomic():
