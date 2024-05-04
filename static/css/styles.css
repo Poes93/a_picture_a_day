@@ -1,0 +1,178 @@
+/* General Body and Background */
+body {
+    background-color: #F9FAFC;
+}
+
+.brand, .thin, .light-bg, .dark-bg, .main-bg {
+    font-family: Lato, sans-serif;
+}
+
+.brand {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #4A4A4F;
+}
+
+.red-o {
+    color: #E84610;
+}
+
+.thin {
+    font-weight: 300;
+}
+
+.light-bg {
+    background-color: #fff;
+}
+
+.dark-bg {
+    background-color: #445261;
+}
+
+.main-bg {
+    background-color: #F9FAFC;
+}
+
+/* Card and Image Container */
+.card, .image-container {
+    border: none;
+    background-color: transparent;
+}
+
+.image-flash {
+    position: absolute;
+    bottom: 5%;
+    min-width: 30%;
+    left: -2px;
+    background-color: #23BBBB;
+}
+
+.author {
+    color: white;
+    margin: 4px;
+    text-transform: uppercase;
+}
+
+/* Masthead Styles */
+.masthead {
+    margin-top: 10px;
+    overflow: hidden;
+    position: relative;
+    display: inline-block;
+    min-height: 200px;
+    width: 100%;
+}
+
+.masthead-text {
+    background-color: #445261;
+    color: white;
+    padding: 0px;
+}
+
+.masthead-image {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Post Links and Titles */
+.post-link, .page-link {
+    text-decoration: none;
+    color: #445261;
+}
+
+.post-link:hover {
+    color: #E84610;
+}
+
+.post-title {
+    margin-top: 20%;
+    margin-left: 5%;
+    font-size: 2rem; /* Updated size */
+}
+
+.post-subtitle {
+    margin-left: 5%;
+    color: lightgray;
+}
+
+/* Buttons */
+.btn-signup {
+    background-color: #23BBBB;
+    color: #fff;
+}
+
+.btn-signup:hover, .btn-signup:active {
+    background-color: #fff;
+    color: #23BBBB;
+}
+
+.link {
+    color: #23BBBB;
+    text-decoration: none;
+}
+
+.link:hover, .link:active {
+    color: #445261;
+    text-decoration: underline;
+}
+
+.btn-like {
+    color: #E84610;
+    border: none;
+    background: transparent;
+}
+
+.btn-like:hover, .btn-like:active {
+    color: #E84610;
+    background: transparent;
+    border: none;
+}
+
+/* Comments Section */
+.comments-section {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.comment {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.comment-author {
+    font-weight: bold;
+}
+
+.comment-body {
+    margin-top: 5px;
+}
+
+/* Responsive Design Adjustments */
+@media (max-width: 768px) {
+    .masthead-image, .masthead-text {
+        width: 100%; /* Stack image and text on smaller screens */
+    }
+
+    .post-title {
+        margin-top: 10%;
+    }
+}
+
+label[for="id_content"] {
+    display: none;
+}
+
+label[for="id_body"] {
+    display: none;
+}
+
+a[href="/accounts/password/reset/"] {
+    display: none;
+}
+
+.post-title, .post-subtitle, .card-text, .post-mood, .post-interactions {
+    margin-left: 0;
+    padding-left: 10px; /* Adjust these values as needed */
+}
