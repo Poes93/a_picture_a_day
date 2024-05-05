@@ -67,3 +67,4 @@ urllib3==1.26.15
 webencodings==0.5.1
 Werkzeug==3.0.1
 yarl==1.9.4
+whitenoise==5.3.0
