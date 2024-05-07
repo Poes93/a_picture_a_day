@@ -12,6 +12,7 @@ from django.utils.decorators import method_decorator
 from django.db import IntegrityError, transaction
 from django.contrib import messages
 
+
 class PostList(generic.ListView):
     model = Post
     queryset = Post.objects.filter(status=1).order_by("-created_on")
@@ -27,8 +28,16 @@ class PostDetail(View):
         if request.user.is_authenticated:
             queryset = Post.objects.filter(Q(status=1) | Q(author=request.user, status=0))
         
-        # Attempt to get the post with the slug, within the refined queryset
-        post = get_object_or_404(queryset, slug=slug)
+        try:
+            # Attempt to get the post with the slug, within the refined queryset
+            post = queryset.get(slug=slug)
+        except Post.DoesNotExist:
+            # If the post does not exist and the user is not authenticated, redirect to login page
+            if not request.user.is_authenticated:
+                return redirect('login')  # Ensure 'login' is the name of your login URL
+            else:
+                # If the user is authenticated, show a standard 404 page or a custom error message
+                return HttpResponse("Post not found", status=404)
 
         # Gather comments and like status for the post
         comments = post.comments.order_by('-created_on')
