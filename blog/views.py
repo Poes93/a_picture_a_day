@@ -11,7 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
 from django.db import IntegrityError, transaction
 from django.contrib import messages
-
+from django.core.exceptions import PermissionDenied
 
 class PostList(generic.ListView):
     model = Post
@@ -21,40 +21,25 @@ class PostList(generic.ListView):
 
 class PostDetail(View):
     def get(self, request, slug):
-        # Begin with a base query that includes only published posts
         queryset = Post.objects.filter(status=1)
-        
-        # If the user is authenticated, adjust the queryset to also include their own drafts
         if request.user.is_authenticated:
             queryset = Post.objects.filter(Q(status=1) | Q(author=request.user, status=0))
-        
         try:
-            # Attempt to get the post with the slug, within the refined queryset
             post = queryset.get(slug=slug)
         except Post.DoesNotExist:
-            # If the post does not exist and the user is not authenticated, redirect to login page
             if not request.user.is_authenticated:
-                return redirect('login')  # Ensure 'login' is the name of your login URL
+                return redirect('login')
             else:
-                # If the user is authenticated, show a standard 404 page or a custom error message
                 return HttpResponse("Post not found", status=404)
-
-        # Gather comments and like status for the post
         comments = post.comments.order_by('-created_on')
         liked = post.likes.filter(id=request.user.id).exists() if request.user.is_authenticated else False
-
-        return render(
-            request,
-            'post_detail.html',
-            {
-                'post': post,
-                'comments': comments,
-                'commented': False,
-                'liked': liked,
-                'comment_form': CommentForm(),
-            }
-        )
-
+        return render(request, 'post_detail.html', {
+            'post': post,
+            'comments': comments,
+            'commented': False,
+            'liked': liked,
+            'comment_form': CommentForm(),
+        })
 
     @method_decorator(login_required)
     def post(self, request, slug, *args, **kwargs):
@@ -64,29 +49,21 @@ class PostDetail(View):
         liked = False
         if post.likes.filter(id=self.request.user.id).exists():
             liked = True
-
         comment_form = CommentForm(data=request.POST)
-
         if comment_form.is_valid():
             new_comment = comment_form.save(commit=False)
             new_comment.author = request.user
             new_comment.post = post
             new_comment.save()
-
         else:
             comment_form = CommentForm()
-
-        return render(
-            request,
-            'post_detail.html',
-            {
-                'post': post,
-                'comments': comments,
-                'commented': True,
-                'liked': liked,
-                'comment_form': CommentForm(),
-            }
-        )
+        return render(request, 'post_detail.html', {
+            'post': post,
+            'comments': comments,
+            'commented': True,
+            'liked': liked,
+            'comment_form': CommentForm(),
+        })
 
 class PostLike(View):
     @method_decorator(login_required)
@@ -96,7 +73,6 @@ class PostLike(View):
             post.likes.remove(request.user)
         else:
             post.likes.add(request.user)
-
         return HttpResponseRedirect(reverse('post_detail', args=[slug]))
 
 class UserPostsView(LoginRequiredMixin, generic.ListView):
@@ -105,16 +81,13 @@ class UserPostsView(LoginRequiredMixin, generic.ListView):
     paginate_by = 8
 
     def get_queryset(self):
-        # Retrieve the filter from the URL parameter, default to showing all posts
         post_status = self.request.GET.get('status', 'all')
-
         if post_status == 'published':
             return Post.objects.filter(author=self.request.user, status=1).order_by("-created_on")
         elif post_status == 'drafts':
             return Post.objects.filter(author=self.request.user, status=0).order_by("-created_on")
         else:
             return Post.objects.filter(author=self.request.user).order_by("-created_on")
-
 
 class PostCreate(LoginRequiredMixin, CreateView):
     model = Post
@@ -124,29 +97,30 @@ class PostCreate(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         post = form.save(commit=False)
         post.author = self.request.user
-        # Use the 'status' field directly from the form
-        # Assuming 'status' is a choice field in your form where 'draft' and 'publish' are possible values
         status = form.cleaned_data['status']
         if status == 'publish':
-            post.status = 1  # Assuming 1 is for published
+            post.status = 1
         else:
-            post.status = 0  # Assuming 0 is for drafts
-
+            post.status = 0
         try:
             with transaction.atomic():
-                post.save()  # This will now handle transaction rollback on error
+                post.save()
                 return HttpResponseRedirect(post.get_absolute_url())
         except IntegrityError as e:
             messages.error(self.request, "There was an error saving your post. Please try again.")
             return self.form_invalid(form)
 
-        return HttpResponseRedirect(post.get_absolute_url())
-
-
 class PostUpdate(LoginRequiredMixin, generic.UpdateView):
     model = Post
     form_class = PostForm
     template_name = "post_edit.html"
+
+    def get_object(self, queryset=None):
+        """ Ensure only the post's author can update the post. """
+        obj = super().get_object(queryset=queryset)
+        if obj.author != self.request.user:
+            raise PermissionDenied("You are not authorized to edit this post.")
+        return obj
 
     def form_valid(self, form):
         post = form.save(commit=False)
@@ -159,6 +133,13 @@ class PostDelete(LoginRequiredMixin, generic.DeleteView):
     template_name = "post_delete.html"
     pk_url_kwarg = 'pk'
     success_url = reverse_lazy('user_posts')
+
+    def get_object(self, queryset=None):
+        """ Ensure only the post's author can delete the post. """
+        obj = super().get_object(queryset=queryset)
+        if obj.author != self.request.user:
+            raise PermissionDenied("You are not authorized to delete this post.")
+        return obj
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()

@@ -3,6 +3,15 @@ from django.urls import path, include
 from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LoginView
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import redirect
+
+
+def permission_denied_view(request, exception):
+    return redirect('login')
+
+handler403 = permission_denied_view
+
 
 urlpatterns = [
     path('', views.PostList.as_view(), name='home'),
